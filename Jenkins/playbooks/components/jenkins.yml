@@ -1,0 +1,63 @@
+- name: Configure Jenkins Master Files
+  hosts: jenkins.myddns.rocks
+  connection: paramiko
+  become: yes
+
+  tasks:
+  - name: Create Jenkins User
+    user:
+      name={{ jenkins_user }}
+      uid={{ jenkins_user_uid }}
+      generate_ssh_key={{ generate_ssh_key }}
+      group={{ jenkins_group }}
+      shell=/bin/bash
+
+  - name: Configure ssh
+    blockinfile:
+      dest: /home/jenkins/.ssh/config
+      block: |
+        Host *
+          StrictHostKeyChecking no
+          UserKnownHostsFile=/dev/null
+
+        Host github.com
+          Hostname github.com
+      create: yes
+    #become_user: "{{ jenkins_user }}"
+    #become: yes
+
+  - name: Copy SSH keys
+    copy:
+      src: files/{{ item }}
+      dest: /home/jenkins/.ssh/{{ item }}
+      owner: "{{ jenkins_user }}"
+      group: "{{ jenkins_group }}"
+      mode: 0600
+    with_items:
+    - "id_rsa"
+    - "id_rsa.pub"
+
+  - name: Enabling Jenkins ssh Login
+    shell:
+      cat id_rsa.pub > authorized_keys
+      chdir=/home/jenkins/.ssh/
+    #become_user: "{{ jenkins_user }}"
+    #become: yes
+
+  - name: Create Jenkins Working Directories
+    file:
+      path={{ item }}
+      owner={{ jenkins_user }}
+      group={{ jenkins_group }}
+      state=directory
+      recurse=yes
+    with_items:
+    - "{{ jenkins_home }}"
+    - "{{ jenkins_slave_home }}"
+
+  - name: Ensure Plugins installed
+    shell:
+      docker run --rm -e REF=/var/jenkins_home/plugins -v {{ jenkins_home }}:/var/jenkins_home
+        jenkins:{{ ansible_env.JenkinsVersion | default(jenkins_version)}}
+       /usr/local/bin/install-plugins.sh {{ plugins | unique | join (' ') }}
+    become: yes

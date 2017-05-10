@@ -1,0 +1,56 @@
+version: '2'
+services:
+  jenkins:
+    restart: always
+    image: "jenkins:{{ ansible_env.JenkinsVersion | default(jenkins_version)}}"
+    expose:
+      - "8080"
+    ports:
+      - "50000:50000"
+    volumes:
+      - {{ jenkins_home }}:/var/jenkins_home
+      - /home/jenkins/.ssh:/var/jenkins_home/.ssh
+    environment:
+      - JAVA_OPTS=
+          -Djenkins.install.runSetupWizard=false
+          -Djava.awt.headless=true
+          -Dhudson.plugins.git.GitSCM.verbose=true
+          -XX:NewSize=256m
+          -XX:MaxNewSize=256m
+          -XX:PermSize=256m
+          -XX:+DisableExplicitGC
+          -XX:MaxPermSize=512m
+          -Xms512m
+          -Xmx3000m
+          -Dsvnkit.http.sslProtocols=\"TLSv1\"
+          -Dorg.apache.commons.jelly.tags.fmt.timeZone=Europe/Minsk
+          -Duser.timezone=Europe/Minsk
+          -Dhttps.protocols=TLSv1
+          -Dorg.eclipse.jetty.server.Request.maxFormContentSize=5000000
+          -Dhudson.plugins.parameterizedtrigger.ProjectSpecificParametersActionFactory.compatibility_mode=true
+          -Dpermissive-script-security.enabled=true
+          -XX:ReservedCodeCacheSize=256m
+          -XX:InitialCodeCacheSize=128m
+          -XX:+UseCodeCacheFlushing
+    logging:
+      driver: syslog
+      options:
+        tag: "docker/jenkins"
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 20000
+        hard: 40000
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    depends_on:
+      - jenkins
+    volumes:
+      - "./nginx.default.conf:/etc/nginx/conf.d/default.conf"
+    logging:
+      driver: syslog
+      options:
+        tag: "docker/nginx"

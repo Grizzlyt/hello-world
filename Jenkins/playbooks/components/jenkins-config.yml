@@ -1,0 +1,45 @@
+- name: Configure Jenkins Master Files
+  hosts: all
+  connection: paramiko
+  become: yes
+
+  tasks:
+  - name: Ensure We have All PY libs
+    pip: name=boto3
+
+  - name: Copy Groovy files
+    template:
+      src: "{{ item }}"
+      dest: "{{ jenkins_home }}/{{ item | replace('j2.', '') }}"
+      owner: "{{ jenkins_user }}"
+      group: "{{ jenkins_group }}"
+    with_items:
+      - credentials-and-slaves.j2.groovy
+      - global-config.j2.groovy
+      - maven-installation.j2.groovy
+      - seed.j2.xml
+
+  - name: Configure Credentials and Slaves
+    script: >
+      scripts/groovy_upload.sh {{ jenkins_home }}/credentials-and-slaves.groovy {{ jenkins_home }}/.ssh/.id_rsa
+      creates={{ jenkins_home }}/.credentials-and-slaves
+
+  - name: Configure Jenkins Global Congiguration
+    script: >
+      scripts/groovy_upload.sh {{ jenkins_home }}/global-config.groovy {{ jenkins_home }}/.global-config
+      creates={{ jenkins_home }}/.global-config
+
+  - name: Configure Maven installation in Jenkins Global Congiguration
+    script: >
+      scripts/groovy_upload.sh {{ jenkins_home }}/maven-installation.groovy {{ jenkins_home }}/.maven-installation
+      creates={{ jenkins_home }}/.maven-installation
+
+  - name: Enabling Jenkins ssh Login
+    shell:
+      cat id_rsa.pub > authorized_keys
+      chdir=/home/jenkins/.ssh/
+
+  - name: Configure Seed Job
+    script: >
+      scripts/create_seed_job.sh {{ jenkins_home }}/seed.xml {{ jenkins_home }}/.seed
+      creates={{ jenkins_home }}/.seed

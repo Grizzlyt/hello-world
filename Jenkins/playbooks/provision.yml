@@ -1,0 +1,13 @@
+- name: Provision Host
+  hosts: jenkins.myddns.rocks
+  connection: paramiko
+  become: yes
+
+  tasks:
+  - name: Ensure Server Folder Exists
+    file: path={{ server_conf | mandatory }} recurse=yes state=directory
+
+- include: components/docker.yml
+- include: components/jenkins.yml
+- include: components/compose.yml
+- include: components/jenkins-config.yml

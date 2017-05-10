@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.25">
+      <autoRebuild>false</autoRebuild>
+      <rebuildDisabled>false</rebuildDisabled>
+    </com.sonyericsson.rebuild.RebuildSettings>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <javaposse.jobdsl.plugin.ExecuteDslScripts plugin="job-dsl@1.57">
+      <scriptText>import hudson.model.*
+import hudson.util.*
+
+
+def scripts = [
+  [&quot;name&quot;: &quot;TestJob&quot;]
+]
+
+scripts.each {
+
+  def script_name = it[&quot;name&quot;]
+
+  def job_name = [script_name]
+
+  def now = new Date()
+  def nowstr = now.format(&apos;dd/MMM/yyyy kk:mm:ss&apos;)
+
+  job(job_name) {
+    description(&apos;&lt;i style=&quot;color:#9b2d30&quot;&gt;Managed by Jenkins job DSL plugin&lt;br&gt;Last modified: &apos; + nowstr)
+
+    label(&apos;master&apos;)
+
+    environmentVariables {
+      keepBuildVariables(true)
+      keepSystemVariables(true)
+    }
+
+    scm {
+      git {
+        remote {
+          url(&apos;git@github.com:Grizzlyt/hello-world.git&apos;)
+          branch(&apos;ci&apos;)
+        }
+        extensions {
+          cloneOptions {
+            shallow true
+            timeout 45
+          }
+        }
+      }
+    }
+    stages {
+        stage('Build') {
+            steps {
+                sh 'docker-compose build'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'docker-compose up -d'
+                sh '$dc=$(docker ps -qa)
+                for i in $dc
+                do
+                    testvar=$(docker exec -it $i echo "Test | wc -l)"
+                    if [[ $testvar != "1" ]]; then
+                        echo "Container $i is ok"
+                    fi
+                done'
+            }
+        }
+    }
+  }
+}</scriptText>
+      <usingScriptText>true</usingScriptText>
+      <ignoreExisting>false</ignoreExisting>
+      <ignoreMissingFiles>false</ignoreMissingFiles>
+      <failOnMissingPlugin>false</failOnMissingPlugin>
+      <unstableOnDeprecation>false</unstableOnDeprecation>
+      <removedJobAction>IGNORE</removedJobAction>
+      <removedViewAction>IGNORE</removedViewAction>
+      <lookupStrategy>JENKINS_ROOT</lookupStrategy>
+    </javaposse.jobdsl.plugin.ExecuteDslScripts>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

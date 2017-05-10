@@ -1,0 +1,69 @@
+server_conf: /var/server
+
+jenkins_user: jenkins
+jenkins_group: docker
+
+jenkins_user_uid: 1000
+generate_ssh_key: no
+jenkins_home: '{{ server_conf }}/jenkins/master'
+jenkins_version: 2.32.3-alpine
+
+jenkins_global_maven_version: 3.3.9
+
+jenkins_docker_slave_name: localhost
+jenkins_docker_slave_label: Host-Node
+
+jenkins_slave_home: '{{ server_conf }}/jenkins/slave'
+jenkins_slave_workstation_home: '/var/server/jenkins/slave'
+jenkins_slave_num_executors: 1
+
+plugins:
+  - role-strategy
+  - multiple-scms
+  - git
+  - github
+  - github-api
+  - github-oauth
+  - github-pr-coverage-status
+  - github-pullrequest
+  - github-organization-folder
+  - multi-branch-project-plugin
+  - ghprb
+  - rebuild
+  - envinject
+  - managed-scripts
+  - conditional-buildstep
+  - greenballs
+  - workflow-aggregator
+  - matrix-auth
+  - ssh-slaves
+  - monitoring
+  - job-dsl
+  - ansicolor
+  - mask-passwords
+  - build-user-vars-plugin
+  - build-timestamp
+  - uno-choice
+  - email-ext
+  - dynamic_extended_choice_parameter
+  - extensible-choice-parameter
+  - extended-choice-parameter
+  - ws-cleanup
+  - jobConfigHistory
+  - dynamicparameter
+  - Parameterized-Remote-Trigger
+  - timestamper
+  - parameterized-trigger
+  - slack
+  - customize-build-now
+  - permissive-script-security
+  - sonar
+  - groovy-postbuild
+  - show-build-parameters
+  - pipeline-maven
+  - docker-workflow
+  - gradle
+  - pegdown-formatter
+  - antisamy-markup-formatter
+  - credentials-binding
+  - Office-365-Connector

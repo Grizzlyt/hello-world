@@ -1,0 +1,22 @@
+- name: Installing Docker
+  hosts: all
+  connection: paramiko
+  become: yes
+
+  tasks:
+  - name: Install Docker
+    yum: name={{ item }}
+    with_items: 
+    - docker-engine
+
+  - name: Install Docker components
+    pip: name={{ item }}
+    with_items:
+    - docker-compose
+
+  - name: Ensure Docker Daemon is Running
+    service: 
+      name=docker
+      state=started
+      enabled=yes
+
