@@ -1,4 +1,4 @@
-# Kubernetes deployment for `hello-world`
+# Kubernetes deployment for `goodbye-world`
 
 This kubernetes deployment was tested on [GKE](https://cloud.google.com/container-engine/). It utilizes the built-in [`kubeDNS`](https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/dns) to allow the services to find the Consul cluster (used for internal application discovery).
 
@@ -13,12 +13,12 @@ $ kubectl apply -f consul/kube-deployment.yml
 $ kubectl apply -f consul/kube-service.yml
 
 # Once consul is deployed you can spin up your services.
-$ kubectl apply -f hello/kube-deployment.yml
+$ kubectl apply -f goodbye/kube-deployment.yml
 $ kubectl apply -f world/kube-deployment.yml
 $ kubectl apply -f nginx/kube-deployment.yml
 ```
 
-Once your deployments are created you can scale them up and down easily. ContainerPilot, in conjunction with Consul, automates the service discovery and the configuration (and re-configuration) of the components as we scale. To scale up the `hello` service change the number of replicas:
+Once your deployments are created you can scale them up and down easily. ContainerPilot, in conjunction with Consul, automates the service discovery and the configuration (and re-configuration) of the components as we scale. To scale up the `goodbye` service change the number of replicas:
 
 ```yaml
 spec:
@@ -26,9 +26,9 @@ spec:
   replicas: 4
 ```
 
-If you check the Consul logs you should see the new `hello` services register.
+If you check the Consul logs you should see the new `goodbye` services register.
 
-If you require a cloud load balancer to manage ingress to your cluster, also deploy the `nginx` service to allow traffic to the `hello-world` app:
+If you require a cloud load balancer to manage ingress to your cluster, also deploy the `nginx` service to allow traffic to the `goodbye-world` app:
 
 ```bash
 $ kubectl apply -f nginx/kube-service.yml

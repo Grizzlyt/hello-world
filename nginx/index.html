@@ -13,12 +13,12 @@
 </body>
 <script>
   window.onload = function () {
-    setHello();
+    setGoodbye();
     setWorld();
   };
 
-  function setHello () {
-    window.fetch('/hello').then(function (res) {
+  function setGoodbye () {
+    window.fetch('/goodbye').then(function (res) {
       return res.text();
     }).then(function (val) {
       const h1 = document.getElementsByTagName('h1')[0];

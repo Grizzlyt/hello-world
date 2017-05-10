@@ -1,18 +1,18 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: world
+  name: goodbye
   namespace: goodbye-world
 spec:
   replicas: 2
   template:
     metadata:
       labels:
-        app: world
+        app: goodbye
     spec:
       containers:
-      - image: gcr.io/jackzampolin-web/world
+      - image: gcr.io/jackzampolin-web/goodbye
         imagePullPolicy: Always
-        name: world
+        name: goodbye
         ports:
         - containerPort: 3002
